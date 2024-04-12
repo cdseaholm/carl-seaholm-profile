@@ -8,7 +8,7 @@ function MyApp({ Component, pageProps }: { Component: React.ElementType, pagePro
 
   return (
     <AnimatePresence mode="wait" initial={false} onExitComplete={() => window.scrollTo(0, 0)}>
-      <Component {...pageProps} key={router.replace} />
+        <Component {...pageProps} key={router.replace} />
     </AnimatePresence>
   );
 }

@@ -1,32 +1,15 @@
 'use client'
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import logoutAuth from '@/app/api/auth/logout';
-import { useSession } from '@/app/SessionContext';
 import InnerHeader from '@/components/pagetemplates/innerheader/InnerHeader';
 import MainChild from '@/components/pagetemplates/mainchild/mainchild';
+import { useModalContext } from '@/app/context/modal/modalContext';
 
 const LogoutPage = () => {
-    const router = useRouter();
-
-    const { logout, session } = useSession();
-
-    const handleLogout = async () => {
-        if (!session) {
-            alert('You must be logged in to view this page.');
-            return;
-        } else {
-        const loggingOut = await logoutAuth({session});
-        if (loggingOut === 'Logged out successfully') {
-            logout();
-            router.push('/login');
-        } else {
-            alert('Already logged out');
-            console.log(loggingOut);
-        }
+    const { setShowEditUser } = useModalContext();
+    const handleLogout = () => {
+        console.log('logout');
     }
-    };
 
     return (
         <>
@@ -35,7 +18,7 @@ const LogoutPage = () => {
         </InnerHeader>
         <MainChild>
             <div className="flex flex-col justify-center space-y-4">
-                <button>
+                <button onClick={() => setShowEditUser(true)}>
                     Edit Profile
                 </button>
                 <button>

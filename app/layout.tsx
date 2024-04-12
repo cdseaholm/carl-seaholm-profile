@@ -1,26 +1,23 @@
 'use client'
 
 import { Inter } from "next/font/google";
-import "./globals.css";
-import { Providers } from "./providers";
-import Navbar from '../components/nav/Navbar';
+import "@/app/globals.css";
+import { Providers } from "@/app/providers";
+import Navbar from '@/components/nav/Navbar';
 import FooterNavBar from "@/components/nav/footer/footerNavbar";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { SessionProvider } from "./SessionContext";
-import type { Session as SessionType } from "lucia";
 import { ActualUser } from "@/types/user";
-import Session from "./api/auth/session";
-import { set } from "date-fns";
+import { SessionProvider } from "@/app/context/session/SessionContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  console.log('RootLayout Rendered');
+
+  const [isConnected, setIsConnected] = useState(false);
   const pathname = usePathname();
-  const [sessionState, setSessionState] = React.useState<SessionType | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  //const [loading, setLoading] = React.useState(true);
   const [userState, setUserState] = React.useState<ActualUser | null>(null);
 
   useEffect(() => {
@@ -30,47 +27,48 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       };
   }, []);
 
-    useEffect(() => {
-      if (sessionState !== null) {
-        console.log('Session:', sessionState);
-        return;
+  //fetch session was here
+
+  const logout = () => {
+    setUserState(null);
+  };
+
+  const handleLogin = async (formData: FormData) => {
+    const tryLogin = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(Object.fromEntries(formData)),
+    }).then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      return response.json();
+    }).catch(e => {
+      console.error('Fetch error:', e);
+    });
 
-      const fetchSession = async () => {
-        console.log('Fetching session...');
-          try {
-              const { user, session } = await Session();
-              console.log('Session:', session, user);
-              setSessionState(session);
-              setUserState(user);
-          } catch (error) {
-              console.error("Failed to fetch session:", error);
-              // handle error appropriately
-          } finally {
-              setLoading(false);
-          }
-      };
-      fetchSession();
-    }, [setSessionState, setUserState, sessionState]);
-
-    const logout = () => {
-      setSessionState(null);
-      setUserState(null);
-    };
-
-
+    if (tryLogin.error) {
+      console.log(tryLogin.error);
+      return tryLogin.error;
+    } else {
+      setUserState(tryLogin.user);
+      return 'success';
+    }
+  }
 
   return (
     <html lang="en">
-      <SessionProvider session={sessionState} user={userState} loading={loading} logout={logout} setSession={setSessionState} setUser={setUserState}>
+      <SessionProvider logout={logout} setUser={setUserState} user={userState} connectionState={isConnected} setConnectionState={setIsConnected} getSession={function (): Promise<any> {
+        throw new Error("Function not implemented.");
+      } }>
       {pathname !== '/demo_303' &&
       <body className={inter.className}>
         <div className="first">
           <div className="h-screen">
-          {loading ? (
-            <div>Loading...</div>
-          ) : (
-            
+            <>
+              <SpeedInsights/>
               <Providers>
                 <Navbar />
                 <main>
@@ -78,7 +76,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </main>
                 <FooterNavBar />
               </Providers>
-          )}
+            </>
+          
           </div>
         </div>
       </body>
@@ -91,7 +90,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
           </body>
         }
-      </SessionProvider>
+        </SessionProvider>
     </html>
   );
 }

@@ -1,15 +1,13 @@
 'use client'
 
-import { ReactHTMLElement, useState } from "react";
-import PostItemList from "../posts/postlistitem";
-import type { post } from "../../types/post";
+import { useState } from "react";
+import PostItemList from "@/components/posts/postlistitem";
+import type { post } from "@/types/post";
 import React from "react";
 import InnerHeader from "@/components/pagetemplates/innerheader/InnerHeader";
 import MainChild from "../pagetemplates/mainchild/mainchild";
 import useMediaQuery from "../listeners/WidthSettings";
-import { useSession } from "@/app/SessionContext";
-import createBlogSub from "@/app/api/prisma/actions/user/createBlogSub";
-import createUser from "@/app/api/prisma/actions/user/create";
+import { useSession } from "@/app/context/session/SessionContext";
 
 const BlogDropdown = ({categoriesForDrop, posts}: {categoriesForDrop: Array<string>; posts: Record<string, post[]>}) => {
     const isBreakpoint = useMediaQuery(768);
@@ -32,13 +30,13 @@ const BlogDropdown = ({categoriesForDrop, posts}: {categoriesForDrop: Array<stri
                         const formData = new FormData();
                         formData.append('email', email);
                         formData.append('password', password);
-                        createUser({ formData }).then(newUser => {
-                            if (newUser !== null) {
+                        {/**createUser({ formData }).then(newUser => {
+                            if (newUser !== null && typeof newUser !== 'string') {
                                 createBlogSub({user: newUser[0]})
                                 .then((sub) => console.log(sub))
                                 .catch((e) => console.error(e));
                             }
-                        });
+                        });*/}
                     }
                     console.log(`Subscribing user with email: ${email}`);
                 }
@@ -47,14 +45,14 @@ const BlogDropdown = ({categoriesForDrop, posts}: {categoriesForDrop: Array<stri
             }
         } else if (user !== null && user.blogsub === false && !hasShownSubscriptionPrompt.current) {
             const sub = window.confirm('Would you like to subscribe to this blog?');
-            if (sub) {
+            {/**if (sub) {
                 createBlogSub({user}).then(subscriber => {
                     if (subscriber === 'Subbed') {
                         console.log('Subscribed user');
                     }
                     console.log('Subscribing user');
                 });
-            }
+            }*/}
         }
     }, [user]);
 

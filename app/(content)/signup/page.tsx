@@ -1,22 +1,14 @@
 'use client'
 
-import createUser from "@/app/api/prisma/actions/user/create";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
     const router = useRouter();
     
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        const createAccount = await createUser({ formData });
-        if (createAccount) {
-            router.push("/login");
-        } else {
-            alert("An error occurred. Please try again.");
-        }
-    };
+    const handleSubmit = () => {
+		console.log('handleSubmit function called');
+	}
 
 	return (
 		<>
